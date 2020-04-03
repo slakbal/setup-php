@@ -226,10 +226,10 @@ add_blackfire() {
   sudo curl -o /tmp/blackfire-gpg.key -sSL https://packages.blackfire.io/gpg.key 
   sudo apt-key add /tmp/blackfire-gpg.key 
   echo "deb http://packages.blackfire.io/debian any main" | sudo tee /etc/apt/sources.list.d/blackfire.list 
-  find /etc/apt/sources.list.d -type f -name blackfire.list -exec sudo "$debconf_fix" apt-fast update -o Dir::Etc::sourcelist="{}" ';' 
-  $apt_install blackfire-agent 
+  find /etc/apt/sources.list.d -type f -name blackfire.list -exec sudo "$debconf_fix" "$apt_tool" update -o Dir::Etc::sourcelist="{}" ';'
+  $apt_install blackfire-agent
   sudo blackfire-agent --register --server-id="$BLACKFIRE_SERVER_ID" --server-token="$BLACKFIRE_SERVER_TOKEN" 
-  sudo /etc/init.d/blackfire-agent restart 
+  sudo /etc/init.d/blackfire-agent restart
   sudo blackfire --config --client-id="$BLACKFIRE_CLIENT_ID" --client-token="$BLACKFIRE_CLIENT_TOKEN" 
   add_log "$tick" "blackfire" "Added"
   add_log "$tick" "blackfire-agent" "Added"
@@ -308,11 +308,12 @@ ppa_updated="false"
 pecl_config="false"
 version=$1
 old_versions="5.[4-5]"
-debconf_fix="DEBIAN_FRONTEND=noninteractive"
-apt_install="sudo $debconf_fix apt-fast install -y"
 tool_path_dir="/usr/local/bin"
 existing_version=$(php-config --version 2>/dev/null | cut -c 1-3)
+debconf_fix="DEBIAN_FRONTEND=noninteractive"
 [[ -z "${update}" ]] && update='false' || update="${update}"
+if command -v apt-fast >/dev/null; then apt_tool=apt-fast; else apt_tool=apt-get; fi
+apt_install="sudo $debconf_fix $apt_tool install -y"
 
 # Setup PHP
 step_log "Setup PHP"
