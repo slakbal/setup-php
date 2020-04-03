@@ -246,7 +246,7 @@ export async function suppressOutput(os_version: string): Promise<string> {
       return ' >$null 2>&1';
     case 'linux':
     case 'darwin':
-      return ' >/dev/null 2>&1';
+      return ' ';
     default:
       return await log(
         'Platform ' + os_version + ' is not supported',
